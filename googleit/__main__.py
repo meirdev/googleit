@@ -72,10 +72,17 @@ def get_host(url: str) -> str:
 def get_content(content: str, query: str) -> str:
     keywords = re.sub(r"[^\w\s]+", "", query).split()
 
-    for keyword in keywords:
-        content = content.replace(keyword, Style.BRIGHT + keyword + Style.NORMAL)
+    content = "\n".join(textwrap.wrap(content))
 
-    return "\n".join(textwrap.wrap(content))
+    for keyword in keywords:
+        content = re.sub(
+            rf"({keyword})",
+            Style.BRIGHT + "\\1" + Style.NORMAL,
+            content,
+            flags=re.IGNORECASE,
+        )
+
+    return content
 
 
 def get_link(href: str, title: str) -> str:
