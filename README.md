@@ -13,4 +13,4 @@ Search Google from your terminal.
 
 ## Screenshot
 
-![Screenshot](assets/screenshot.png)
+![Screenshot](assets/image.svg)

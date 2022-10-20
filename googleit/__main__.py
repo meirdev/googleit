@@ -6,8 +6,8 @@ import textwrap
 from urllib.parse import urlencode, urlparse, urlunsplit
 
 from bs4 import BeautifulSoup
-from colorama import Fore, Style, init
 from playwright.sync_api import sync_playwright
+from rich.console import Console
 
 DOMAIN = os.environ.get("GOOGLEIT_DOMAIN", "google.com")
 
@@ -77,7 +77,7 @@ def get_content(content: str, query: str) -> str:
     for keyword in keywords:
         content = re.sub(
             rf"({keyword})",
-            Style.BRIGHT + "\\1" + Style.NORMAL,
+            "[b]\\1[/b]",
             content,
             flags=re.IGNORECASE,
         )
@@ -87,15 +87,16 @@ def get_content(content: str, query: str) -> str:
 
 def get_link(href: str, title: str) -> str:
     # https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
-    return "\x1b]8;;" + href + "\x1b\\" + title + "\x1b]8;;\x1b\\"
+    # return "\x1b]8;;" + href + "\x1b\\" + title + "\x1b]8;;\x1b\\"
+    return f"[link={href}]{title}[/link]"
 
 
 def main() -> None:
-    init()
+    console = Console(color_system="standard", highlighter=None)
 
     query = get_query()
     if not query:
-        print(Fore.RED, "Missing query")
+        console.print("[red]Missing query")
         sys.exit(1)
 
     url = get_search_url(query)
@@ -103,10 +104,11 @@ def main() -> None:
     results = parse_results(content)
 
     for result in results:
-        print(Fore.BLACK + get_host(result.link), Style.RESET_ALL)
-        print(Fore.BLUE + get_link(result.link, result.title), Style.RESET_ALL)
-        print(Fore.WHITE + get_content(result.content, query), Style.RESET_ALL)
-        print()
+        console.print(
+            f"[black]{get_host(result.link)}\n"
+            f"[blue]{get_link(result.link, result.title)}\n"
+            f"[white]{get_content(result.content, query)}\n"
+        )
 
 
 if __name__ == "__main__":
